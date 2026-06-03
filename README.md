@@ -4,15 +4,23 @@ Generador automático de **orlas académicas interactivas** en HTML/CSS/JS puro.
 
 ---
 
-## 🌐 Ver ejemplos en vivo
+<div align="center">
+
+## 🎯 ¡PRUÉBALO AHORA MISMO!  👈👈
 
 ```
-https://sergarb1.github.io/GeneradorOrlas/
+               👇                          👇                          👇
+          https://sergarb1.github.io/GeneradorOrlas/
+               👆                          👆                          👆
 ```
 
-[![Abrir en GitHub Pages](https://img.shields.io/badge/🌐_Abrir_GitHub_Pages-2c482b?style=for-the-badge)](https://sergarb1.github.io/GeneradorOrlas/) [![Ver en docs/](https://img.shields.io/badge/📁_Ver_docs-8b6239?style=for-the-badge)](docs/index.html) [![Abrir normalizador](https://img.shields.io/badge/📸_Normalizador_Fotos-5a7a4b?style=for-the-badge)](normalizador-fotos.html)
+[![🌐 Abrir GitHub Pages](https://img.shields.io/badge/🌐_ABRIR_GITHUB_PAGES-2c482b?style=for-the-badge&logo=githubpages&logoColor=white)](https://sergarb1.github.io/GeneradorOrlas/)
+[![📁 Ver docs/ local](https://img.shields.io/badge/📁_Ver_docs_📂-8b6239?style=for-the-badge)](docs/index.html)
+[![📸 Normalizador Fotos](https://img.shields.io/badge/📸_Normalizador_Fotos-5a7a4b?style=for-the-badge)](normalizador-fotos.html)
 
-> Haz clic en cualquier orla del sitio para verla en acción. Cada persona es interactiva: clic para ver su ficha, generar un diploma o activar el modo recorrido.
+> 👆 **Haz clic en el badge de arriba — todas las orlas funcionando en vivo**
+
+</div>
 
 ---
 
@@ -436,4 +444,12 @@ Este proyecto es una **herramienta de ejemplo y plantilla** para que cada centro
 
 ## 📄 Licencia
 
-Proyecto de código abierto. Libre de usar, modificar y distribuir.
+**Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)**
+
+© 2026 **Sergi García Barea**
+
+Puedes usar, modificar y distribuir este proyecto libremente, siempre que:
+- **Atribuyas** la autoría original a Sergi García Barea
+- **Compartas** las modificaciones bajo la misma licencia
+
+[![CC BY-SA 4.0](https://img.shields.io/badge/Licencia-CC_BY--SA_4.0-2c482b?style=for-the-badge)](https://creativecommons.org/licenses/by-sa/4.0/)

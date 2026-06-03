@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Normalizador de Fotos - Orlas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: #f3f0e9;
+        color: #2c2c2c;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    h1 {
+        font-family: 'Cinzel', serif;
+        text-align: center;
+        font-size: 2.2rem;
+        color: #3e2a1f;
+        margin-bottom: 4px;
+    }
+    .subtitle {
+        text-align: center;
+        color: #8b6239;
+        margin-bottom: 24px;
+        font-style: italic;
+    }
+
+    .drop-zone {
+        border: 3px dashed #c7b28b;
+        border-radius: 16px;
+        padding: 50px 20px;
+        text-align: center;
+        background: #faf6ed;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+        background: #f0e8d4;
+        border-color: #a08b6a;
+    }
+    .drop-zone-icon { font-size: 3rem; color: #a08b6a; }
+    .drop-zone-text { font-size: 1.1rem; color: #6b5a45; margin-top: 8px; }
+    .drop-zone-hint { font-size: 0.85rem; color: #a08b6a; margin-top: 4px; }
+
+    .controls {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        padding: 16px 20px;
+        background: #faf6ed;
+        border-radius: 12px;
+        border: 1px solid #e5cfaa;
+    }
+    .controls label { font-weight: 600; color: #3e2a1f; font-size: 0.9rem; }
+    .controls input[type="number"] {
+        width: 80px; padding: 6px 10px;
+        border: 1px solid #c7b28b; border-radius: 8px;
+        font-size: 0.9rem; background: white;
+    }
+    .btn {
+        padding: 10px 22px; border: none; border-radius: 10px;
+        font-size: 0.9rem; font-weight: 600; cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #5a7a4b; color: white; }
+    .btn-primary:hover { background: #4a6a3b; }
+    .btn-primary:disabled { background: #b0b9a8; cursor: not-allowed; }
+    .btn-accent { background: #8b6239; color: white; }
+    .btn-accent:hover { background: #73522e; }
+    .btn-accent:disabled { background: #b8a080; cursor: not-allowed; }
+    .btn-danger { background: #b55a5a; color: white; }
+    .btn-danger:hover { background: #9e4848; }
+    .btn-outline { background: transparent; color: #5a7a4b; border: 2px solid #5a7a4b; }
+    .btn-outline:hover { background: #5a7a4b10; }
+
+    .progress-container { margin-top: 16px; display: none; }
+    .progress-bar {
+        width: 100%; height: 8px;
+        background: #e5cfaa; border-radius: 4px; overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%; width: 0%;
+        background: #5a7a4b; border-radius: 4px;
+        transition: width 0.3s;
+    }
+    .progress-text { font-size: 0.85rem; color: #6b5a45; margin-top: 4px; text-align: center; }
+
+    .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+    .card {
+        background: #faf6ed;
+        border-radius: 12px;
+        border: 1px solid #e5cfaa;
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .card.done { border-color: #5a7a4b; }
+    .card.error { border-color: #b55a5a; }
+
+    .card-header {
+        padding: 10px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #3e2a1f;
+        background: #f0e8d4;
+        border-bottom: 1px solid #e5cfaa;
+        display: flex; justify-content: space-between; align-items: center;
+        gap: 8px;
+    }
+    .card-header .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .card-body {
+        padding: 12px;
+        display: flex; gap: 10px;
+    }
+    .card-body .preview-box {
+        flex: 1;
+        aspect-ratio: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #e9dfc7;
+        display: flex; align-items: center; justify-content: center;
+        position: relative;
+    }
+    .card-body .preview-box img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+    }
+    .preview-label {
+        position: absolute; top: 4px; left: 4px;
+        font-size: 0.65rem; font-weight: 700;
+        background: rgba(0,0,0,0.6); color: white;
+        padding: 2px 8px; border-radius: 4px;
+    }
+    .card-footer {
+        padding: 10px 14px;
+        border-top: 1px solid #e5cfaa;
+        display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    }
+    .card-footer .btn { font-size: 0.78rem; padding: 6px 14px; }
+    .card-footer .status-info {
+        font-size: 0.78rem; color: #8b6239;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .card-footer .remove-btn {
+        margin-left: auto;
+        background: none; border: none;
+        cursor: pointer; font-size: 1rem;
+        opacity: 0.4; transition: opacity 0.2s;
+        padding: 4px;
+    }
+    .card-footer .remove-btn:hover { opacity: 0.8; }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #8b6239;
+    }
+    .empty-state-icon { font-size: 5rem; opacity: 0.25; }
+    .empty-state p { font-size: 1.1rem; margin-top: 8px; }
+
+    .detect-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        padding: 2px 10px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    .detect-badge.ok { background: #5a7a4b20; color: #5a7a4b; }
+    .detect-badge.fallback { background: #b09a7420; color: #8b6239; }
+
+    /* Summary bar after processing */
+    .summary {
+        display: none;
+        margin-top: 16px;
+        padding: 16px 20px;
+        background: #eef5e8;
+        border: 1px solid #5a7a4b;
+        border-radius: 12px;
+        text-align: center;
+    }
+    .summary .count { font-size: 1.5rem; font-weight: 700; color: #3e2a1f; }
+    .summary .detail { font-size: 0.9rem; color: #6b5a45; margin-top: 4px; }
+    .summary .btn { margin-top: 10px; }
+
+    .toast {
+        position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120px);
+        background: #3e2a1f; color: white;
+        padding: 14px 28px; border-radius: 12px;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        opacity: 0;
+        transition: transform 0.3s, opacity 0.3s;
+        z-index: 1000;
+        pointer-events: none;
+        text-align: center;
+        max-width: 90vw;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    @media (max-width: 600px) {
+        body { padding: 12px; }
+        .gallery { grid-template-columns: 1fr; }
+        .controls { flex-direction: column; align-items: stretch; }
+        .controls .right-group { justify-content: center; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Normalizador de Fotos</h1>
+    <p class="subtitle">Detecci&oacute;n facial inteligente &bullet; Recorte cuadrado centrado &bullet; Procesado en lote</p>
+
+    <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-icon">&#128247;</div>
+        <div class="drop-zone-text">Arrastra fotos aqu&iacute; o haz clic para seleccionar</div>
+        <div class="drop-zone-hint">JPG, PNG, WebP &mdash; varias a la vez &mdash; se procesan secuencialmente</div>
+    </div>
+    <input type="file" id="fileInput" multiple accept="image/*" hidden>
+
+    <div class="controls">
+        <label>Tama&ntilde;o:</label>
+        <input type="number" id="outputSize" value="600" min="100" max="2000" style="width:75px">
+        <label>&times;</label>
+        <input type="number" value="600" disabled style="width:60px;background:#f0ebe2;">
+        <label style="margin-left:6px;">Margen facial:</label>
+        <input type="number" id="faceMargin" value="30" min="0" max="100" style="width:60px">%
+        <span style="color:#8b6239;font-size:0.85rem;flex:1;text-align:right" id="fileCount">0 fotos</span>
+        <span style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="processBtn" disabled>Procesar todo</button>
+            <button class="btn btn-accent" id="downloadZipBtn" disabled>Descargar ZIP</button>
+            <button class="btn btn-danger" id="clearBtn">Limpiar</button>
+        </span>
+    </div>
+
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">Procesando...</div>
+    </div>
+
+    <div class="summary" id="summary">
+        <div class="count" id="summaryCount">0 fotos procesadas</div>
+        <div class="detail" id="summaryDetail">Todas listas para descargar</div>
+        <button class="btn btn-accent" id="summaryDownloadBtn">Descargar ZIP con todas</button>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+    <div class="empty-state" id="emptyState">
+        <div class="empty-state-icon">&#128247;</div>
+        <p>A&ntilde;ade fotos para empezar</p>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// === State ===
+const files = new Map();
+let idCounter = 0;
+
+// === DOM refs ===
+const $ = id => document.getElementById(id);
+const dropZone = $('dropZone');
+const fileInput = $('fileInput');
+const gallery = $('gallery');
+const emptyState = $('emptyState');
+const processBtn = $('processBtn');
+const downloadZipBtn = $('downloadZipBtn');
+const clearBtn = $('clearBtn');
+const fileCount = $('fileCount');
+const progressContainer = $('progressContainer');
+const progressFill = $('progressFill');
+const progressText = $('progressText');
+const outputSize = $('outputSize');
+const faceMargin = $('faceMargin');
+const toast = $('toast');
+const summary = $('summary');
+const summaryCount = $('summaryCount');
+const summaryDetail = $('summaryDetail');
+const summaryDownloadBtn = $('summaryDownloadBtn');
+
+let isProcessing = false;
+
+// === Face Detector ===
+let faceDetector = null;
+try {
+    if ('FaceDetector' in window) {
+        faceDetector = new FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
+    }
+} catch(e) { faceDetector = null; }
+
+// === Toast ===
+let toastTimer = null;
+function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+// === Helpers ===
+function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+    });
+}
+
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+function updateUI() {
+    const count = files.size;
+    const doneCount = [...files.values()].filter(e => e.status === 'done').length;
+    fileCount.textContent = `${count} ${count === 1 ? 'foto' : 'fotos'}`;
+    processBtn.disabled = count === 0 || isProcessing;
+    downloadZipBtn.disabled = doneCount === 0 || isProcessing;
+    emptyState.style.display = count === 0 ? 'block' : 'none';
+}
+
+// === Blob URL cache (to avoid leaks) ===
+const blobUrlCache = new Map();
+
+function revokeProcessedUrl(id) {
+    if (blobUrlCache.has(id)) {
+        URL.revokeObjectURL(blobUrlCache.get(id));
+        blobUrlCache.delete(id);
+    }
+}
+
+function getProcessedUrl(id) {
+    const entry = files.get(id);
+    if (!entry || !entry.processedBlob) return '';
+    if (!blobUrlCache.has(id)) {
+        blobUrlCache.set(id, URL.createObjectURL(entry.processedBlob));
+    }
+    return blobUrlCache.get(id);
+}
+
+// === Face Detection ===
+async function detectFace(img) {
+    if (!faceDetector) return null;
+    try {
+        const faces = await faceDetector.detect(img);
+        return faces.length > 0 ? faces[0].boundingBox : null;
+    } catch(e) { return null; }
+}
+
+function smartCrop(img, faceBox, marginPercent) {
+    const sw = img.naturalWidth, sh = img.naturalHeight;
+    let cx = sw / 2, cy = sh / 2, size = Math.min(sw, sh);
+
+    if (faceBox) {
+        cx = faceBox.x + faceBox.width / 2;
+        cy = faceBox.y + faceBox.height / 2;
+        const faceSize = Math.max(faceBox.width, faceBox.height);
+        const margin = faceSize * (marginPercent / 100);
+        size = Math.min(
+            Math.max(faceSize + margin * 2, size * 0.35),
+            Math.min(sw, sh)
+        );
+    }
+
+    let x = Math.max(0, cx - size / 2);
+    let y = Math.max(0, cy - size / 2);
+    if (x + size > sw) x = sw - size;
+    if (y + size > sh) y = sh - size;
+
+    return { sx: Math.round(x), sy: Math.round(y), size: Math.round(size) };
+}
+
+// === Processing ===
+async function processImage(id) {
+    const entry = files.get(id);
+    if (!entry || entry.status === 'processing') return;
+
+    entry.status = 'processing';
+    renderCard(id);
+
+    try {
+        const outSize = parseInt(outputSize.value) || 600;
+        const margin = parseInt(faceMargin.value) || 30;
+
+        const img = await loadImage(entry.dataUrl);
+        const faceBox = await detectFace(img);
+        const crop = smartCrop(img, faceBox, margin);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = outSize;
+        canvas.height = outSize;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, crop.sx, crop.sy, crop.size, crop.size, 0, 0, outSize, outSize);
+
+        // Preserve original format to avoid quality loss
+        const isPng = entry.file.type === 'image/png';
+        const mimeType = isPng ? 'image/png' : 'image/jpeg';
+        const quality = isPng ? undefined : 0.95;
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, mimeType, quality));
+
+        revokeProcessedUrl(id);
+        entry.processedBlob = blob;
+        entry.faceBox = faceBox;
+        entry.status = 'done';
+    } catch(e) {
+        entry.status = 'error';
+        entry.error = e.message;
+    }
+
+    renderCard(id);
+    updateUI();
+}
+
+async function processAll() {
+    if (isProcessing) return;
+    isProcessing = true;
+    processBtn.disabled = true;
+    progressContainer.style.display = 'block';
+    summary.style.display = 'none';
+
+    const ids = [...files.keys()];
+    let done = 0;
+
+    for (const id of ids) {
+        if (!files.has(id)) continue;
+        try {
+            await processImage(id);
+        } catch (e) {
+            const entry = files.get(id);
+            if (entry) { entry.status = 'error'; entry.error = e.message; renderCard(id); }
+        }
+        done++;
+        progressFill.style.width = `${(done / ids.length) * 100}%`;
+        progressText.textContent = `${done} / ${ids.length} — ${files.get(id)?.file?.name || ''}`;
+    }
+
+    isProcessing = false;
+    processBtn.disabled = false;
+    updateUI();
+
+    const successCount = [...files.values()].filter(e => e.status === 'done').length;
+    const errorCount = [...files.values()].filter(e => e.status === 'error').length;
+
+    if (successCount > 0) {
+        summary.style.display = 'block';
+        summaryCount.textContent = `✅ ${successCount} ${successCount === 1 ? 'foto procesada' : 'fotos procesadas'}`;
+        summaryDetail.textContent = errorCount > 0
+            ? `${errorCount} ${errorCount === 1 ? 'error' : 'errores'} — revisa las tarjetas marcadas en rojo`
+            : 'Todas las fotos listas. Pulsa "Descargar ZIP" para guardarlas todas en un archivo.';
+        showToast(`¡${successCount} ${successCount === 1 ? 'foto procesada' : 'fotos procesadas'}!`);
+    } else if (errorCount > 0) {
+        showToast(`❌ Error al procesar ${errorCount} ${errorCount === 1 ? 'foto' : 'fotos'}`);
+    }
+}
+
+// === Download ZIP ===
+async function downloadZip() {
+    const entries = [...files.entries()].filter(([, e]) => e.status === 'done' && e.processedBlob);
+    if (entries.length === 0) { showToast('No hay fotos procesadas'); return; }
+
+    try {
+        const zip = new JSZip();
+        for (const [id, entry] of entries) {
+            const isPng = entry.file.type === 'image/png';
+            const ext = isPng ? '.png' : '.jpg';
+            const name = entry.file.name.replace(/\.[^.]+$/, ext);
+            zip.file(name, entry.processedBlob);
+        }
+
+        const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+        const url = URL.createObjectURL(zipBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `fotos_normalizadas.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+        showToast(`📦 ZIP descargado con ${entries.length} ${entries.length === 1 ? 'foto' : 'fotos'}`);
+    } catch(e) {
+        showToast('Error al generar ZIP: ' + e.message);
+    }
+}
+
+// === Rendering ===
+function renderCard(id) {
+    const entry = files.get(id);
+    if (!entry) return;
+
+    let card = document.querySelector(`[data-id="${id}"]`);
+    if (!card) return;
+
+    card.className = 'card' + (entry.status === 'done' ? ' done' : '') + (entry.status === 'error' ? ' error' : '');
+
+    const statusMap = { 'pending': '⏳ Pendiente', 'processing': '⚙️ Procesando...', 'done': '✅ Lista', 'error': '❌ Error' };
+    const faceLabel = entry.faceBox
+        ? '<span class="detect-badge ok">Rostro detectado</span>'
+        : '<span class="detect-badge fallback">Centrado automático</span>';
+
+    const processedUrl = getProcessedUrl(id);
+    const errMsg = entry.error ? `<span style="color:#b55a5a;font-size:0.75rem">${entry.error}</span>` : '';
+
+    card.innerHTML = `
+        <div class="card-header">
+            <span class="name" title="${entry.file.name}">${entry.file.name}</span>
+            <span>${statusMap[entry.status] || entry.status}</span>
+        </div>
+        <div class="card-body">
+            <div class="preview-box">
+                <span class="preview-label">Original</span>
+                <img src="${entry.dataUrl}" alt="">
+            </div>
+            <div class="preview-box">
+                <span class="preview-label">Normalizada</span>
+                ${processedUrl
+                    ? `<img src="${processedUrl}" alt="">`
+                    : '<span style="color:#a08a6a;font-size:0.8rem">Pendiente</span>'}
+            </div>
+        </div>
+        <div class="card-footer">
+            ${entry.status === 'done' ? faceLabel : ''}
+            ${errMsg}
+            ${entry.status === 'done'
+                ? `<button class="btn btn-outline" onclick="downloadOne('${id}')">⬇ Descargar</button>`
+                : ''}
+            <button class="remove-btn" onclick="removeFile('${id}')" title="Eliminar">✕</button>
+        </div>
+    `;
+}
+
+function renderGallery() {
+    // Revoke all cached blob URLs
+    for (const [id] of blobUrlCache) {
+        URL.revokeObjectURL(blobUrlCache.get(id));
+    }
+    blobUrlCache.clear();
+
+    gallery.innerHTML = '';
+    for (const [id, entry] of files) {
+        const card = document.createElement('div');
+        card.className = 'card' + (entry.status === 'done' ? ' done' : '') + (entry.status === 'error' ? ' error' : '');
+        card.dataset.id = id;
+
+        const statusMap = { 'pending': '⏳ Pendiente', 'processing': '⚙️ Procesando...', 'done': '✅ Lista', 'error': '❌ Error' };
+        const faceLabel = entry.faceBox
+            ? '<span class="detect-badge ok">Rostro detectado</span>'
+            : '<span class="detect-badge fallback">Centrado automático</span>';
+        const processedUrl = getProcessedUrl(id);
+        const errMsg = entry.error ? `<span style="color:#b55a5a;font-size:0.75rem">${entry.error}</span>` : '';
+
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="name" title="${entry.file.name}">${entry.file.name}</span>
+                <span>${statusMap[entry.status] || entry.status}</span>
+            </div>
+            <div class="card-body">
+                <div class="preview-box">
+                    <span class="preview-label">Original</span>
+                    <img src="${entry.dataUrl}" alt="">
+                </div>
+                <div class="preview-box">
+                    <span class="preview-label">Normalizada</span>
+                    ${processedUrl
+                        ? `<img src="${processedUrl}" alt="">`
+                        : '<span style="color:#a08a6a;font-size:0.8rem">Pendiente</span>'}
+                </div>
+            </div>
+            <div class="card-footer">
+                ${entry.status === 'done' ? faceLabel : ''}
+                ${errMsg}
+                ${entry.status === 'done'
+                    ? `<button class="btn btn-outline" onclick="downloadOne('${id}')">⬇ Descargar</button>`
+                    : ''}
+                <button class="remove-btn" onclick="removeFile('${id}')" title="Eliminar">✕</button>
+            </div>
+        `;
+        gallery.appendChild(card);
+    }
+}
+
+// === File Management ===
+function downloadOne(id) {
+    const entry = files.get(id);
+    if (!entry || !entry.processedBlob) return;
+    const isPng = entry.file.type === 'image/png';
+    const ext = isPng ? '.png' : '.jpg';
+    const name = entry.file.name.replace(/\.[^.]+$/, ext);
+    const url = URL.createObjectURL(entry.processedBlob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    showToast(`⬇ Descargando ${name}`);
+}
+
+function removeFile(id) {
+    revokeProcessedUrl(id);
+    files.delete(id);
+    document.querySelector(`[data-id="${id}"]`)?.remove();
+    updateUI();
+    // Hide summary if no done files left
+    const doneCount = [...files.values()].filter(e => e.status === 'done').length;
+    if (doneCount === 0) summary.style.display = 'none';
+}
+
+async function addFiles(fileList) {
+    const list = Array.from(fileList);
+    for (const file of list) {
+        const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|tiff?)$/i.test(file.name);
+        if (!isImage) continue;
+        const id = `f_${++idCounter}`;
+        const dataUrl = await fileToDataUrl(file);
+        files.set(id, { file, dataUrl, status: 'pending' });
+    }
+    renderGallery();
+    updateUI();
+    summary.style.display = 'none';
+    progressContainer.style.display = 'none';
+    if (files.size > 0) showToast(`${files.size} ${files.size === 1 ? 'foto añadida' : 'fotos añadidas'}`);
+}
+
+// === Events ===
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) addFiles(fileInput.files);
+    fileInput.value = '';
+});
+
+processBtn.addEventListener('click', processAll);
+downloadZipBtn.addEventListener('click', downloadZip);
+summaryDownloadBtn.addEventListener('click', downloadZip);
+clearBtn.addEventListener('click', () => {
+    if (files.size > 0 && !confirm('¿Eliminar todas las fotos?')) return;
+    for (const id of files.keys()) revokeProcessedUrl(id);
+    files.clear();
+    gallery.innerHTML = '';
+    updateUI();
+    progressContainer.style.display = 'none';
+    summary.style.display = 'none';
+});
+
+updateUI();
+</script>
+</body>
+</html>
