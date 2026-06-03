@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orla Académica - ASISTENCIA A LA DIRECCIÓN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #c0a080;
+            --bg-orla: #fcf8ef;
+            --text-main: #2b2a1e;
+            --accent: #2c482b;
+            --accent-soft: rgba(44, 72, 43, 0.1);
+        }
+
+        body.dark-mode {
+            --bg-body: #1a1a1a;
+            --bg-orla: #2d2d2d;
+            --text-main: #e9dfc7;
+            --accent: #c7b28b;
+            --accent-soft: rgba(199, 178, 139, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-body);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 20px;
+            overflow-x: hidden;
+            transition: background 0.5s;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 5px; background: var(--accent);
+            width: 0%; z-index: 2000;
+            transition: width 0.1s linear;
+        }
+
+        .orla {
+            position: relative;
+            width: 100%;
+            max-width: 1920px;
+            aspect-ratio: 1920 / 1080;
+            background: var(--bg-orla);
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            container-type: size;
+            transition: background 0.5s;
+        }
+
+        .profesor, .alumno {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            z-index: 5;
+            position: relative;
+        }
+
+        .orla:has(.focused) .profesor:not(.focused),
+        .orla:has(.focused) .alumno:not(.focused),
+        .orla:has(.profesor:hover) .profesor:not(:hover),
+        .orla:has(.alumno:hover) .alumno:not(:hover) {
+            opacity: 0.2;
+            filter: blur(2px) grayscale(50%);
+        }
+
+        .profesor.focused, .alumno.focused,
+        .profesor:hover, .alumno:hover {
+            transform: scale(1.2) translateY(-5px);
+            z-index: 100;
+            filter: drop-shadow(0 0.5cqw 1cqw rgba(0,0,0,0.3));
+        }
+
+        .fondo {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: 1; pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .contenido {
+            position: relative;
+            z-index: 10;
+            width: 100%; height: 100%;
+            padding: 1cqw 5cqw 7cqw 5cqw;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .espacio-titulo { height: 13cqw; width: 100%; }
+
+        .profesores {
+            display: flex;
+            justify-content: center;
+            gap: 1.3cqw;
+            width: 100%;
+        }
+
+        .profesor { text-align: center; width: 7.5cqw; }
+
+        .profesor-foto, .placeholder-inicial {
+            width: 5cqw; height: 5cqw;
+            object-fit: cover; border-radius: 50%;
+            display: block; margin: 0 auto 0.35cqw auto;
+            background: #e9dfc7;
+            box-shadow: 0 0.2cqw 0.5cqw rgba(0,0,0,0.15);
+            border: 0.15cqw solid white;
+        }
+
+        .placeholder-inicial {
+            background: #c7b28b;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Cinzel', serif; font-size: 1.8cqw; font-weight: bold; color: #3e2a1f;
+        }
+
+        .profesor-nombre {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700; font-size: 0.85cqw; color: var(--text-main); line-height: 1.2;
+        }
+
+        .profesor-cargo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.72cqw; font-style: italic; color: #8b6239;
+        }
+
+        .ciclo {
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            font-size: 1.4cqw; font-weight: 600; color: #2c482b;
+            background: rgba(250,245,225,0.75);
+            padding: 0.2cqw 1.5cqw; border-radius: 3cqw;
+            backdrop-filter: blur(2px); margin: 0.2cqw auto;
+            border: 0.05cqw solid #2c482b40;
+        }
+
+        .alumnos {
+            display: flex; flex-wrap: wrap;
+            justify-content: center; align-content: center;
+            gap: var(--alumno-gap-y, 1cqw) var(--alumno-gap-x, 1.5cqw);
+            width: 100%;
+            max-width: 90%;
+        }
+
+        .alumno {
+            text-align: center;
+            width: var(--alumno-width, 10cqw);
+        }
+
+        .alumno-foto, .alumno-placeholder {
+            width: var(--alumno-foto-size, 6.5cqw);
+            height: var(--alumno-foto-size, 6.5cqw);
+            object-fit: cover; border-radius: 50%;
+            display: block; margin: 0 auto 0.4cqw auto;
+            background: #e9dfc7;
+            box-shadow: 0 0.2cqw 0.5cqw rgba(0,0,0,0.15);
+            border: 0.15cqw solid white;
+        }
+
+        .alumno-placeholder {
+            background: #c7b28b;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Cinzel', serif; font-size: 2.5cqw; font-weight: bold; color: #3e2a1f;
+        }
+
+        .alumno-nombre {
+            font-family: 'Great Vibes', cursive;
+            color: var(--text-main);
+            background: rgba(250,245,225,0.45);
+            padding: 0.3cqw 0.6cqw; border-radius: 1cqw;
+            display: flex; flex-direction: column; align-items: center;
+            line-height: 1.1; transition: background 0.3s;
+        }
+
+        .alumno:hover .alumno-nombre, .alumno.focused .alumno-nombre { background: rgba(250,245,225,0.9); }
+
+        .alumno-pila { font-size: var(--alumno-font-pila, 1.5cqw); font-weight: 600; }
+        .alumno-apellidos { font-size: var(--alumno-font-ape, 1.2cqw); font-weight: 500; margin-top: 0.1cqw; }
+
+        .promocion {
+            text-align: center; font-family: 'Cinzel', serif;
+            font-size: 1.2cqw; font-weight: 500; color: #8b6239;
+            border-top: 0.05cqw solid #e5cfaa; padding-top: 0.5cqw;
+            width: 100%; letter-spacing: 0.3cqw;
+        }
+
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px); display: none;
+            justify-content: center; align-items: center; z-index: 5000; padding: 20px;
+        }
+        .modal-content {
+            background: var(--bg-orla); padding: 40px; border-radius: 30px;
+            max-width: 500px; width: 100%; text-align: center;
+            border: 2px solid var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        @keyframes modalPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-foto { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 4px solid var(--accent); }
+        .modal-nombre { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--accent); margin-bottom: 10px; }
+        .modal-bio { font-style: italic; margin-bottom: 20px; opacity: 0.8; color: var(--text-main); }
+        .superpower { background: var(--accent-soft); color: var(--accent); padding: 8px 15px; border-radius: 10px; display: inline-block; font-weight: bold; font-size: 0.9rem; margin-top: 10px; }
+
+        .diploma-area {
+            display: none;
+            position: fixed; inset: 0; background: white; z-index: 6000;
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px; text-align: center; color: #1a365d;
+        }
+        .diploma-box {
+            border: 15px double #1a365d; padding: 50px; max-width: 800px; background: #fffdf5;
+            position: relative;
+        }
+        .diploma-title { font-family: 'Cinzel', serif; font-size: 3rem; margin-bottom: 20px; }
+        .diploma-text { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 30px; }
+        .diploma-name { font-family: 'Great Vibes', cursive; font-size: 4rem; color: #c7b28b; margin-bottom: 20px; }
+
+        .controles { display: flex; gap: 15px; z-index: 100; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .search-container { position: relative; margin-left: 20px; }
+        .search-input { padding: 10px 20px 10px 40px; border-radius: 50px; border: 2px solid var(--accent-soft); font-family: 'Cormorant Garamond', serif; font-size: 1rem; background: var(--bg-orla); color: var(--text-main); width: 250px; transition: all 0.3s; outline: none; }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(44, 72, 43, 0.2); width: 300px; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+        .no-results { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 5px 15px; border-radius: 5px; font-size: 0.8rem; display: none; z-index: 1000; }
+
+        .btn { padding: 10px 24px; border-radius: 50px; border: none; font-family: 'Cinzel', serif; font-weight: bold; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; color: white; text-decoration: none; }
+        .btn:hover { transform: scale(1.05) translateY(-2px); }
+        .btn-celebrar { background: #2c482b; }
+        .btn-recorrido { background: #1a365d; }
+        .btn-imprimir { background: #8b6239; }
+        .btn-theme { background: #555; }
+        .btn-diploma { background: #c7b28b; color: #3e2a1f; margin: 20px auto 0; }
+        .btn-close { margin-top: 30px; background: var(--accent); color: white; padding: 10px 30px; border-radius: 50px; border: none; cursor: pointer; font-family: 'Cinzel', serif; }
+
+        .confetti { position: fixed; width: 10px; height: 10px; z-index: 1000; pointer-events: none; }
+
+        .guide-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000;
+            display: flex; justify-content: center; align-items: center; padding: 20px;
+        }
+        .guide-content {
+            background: white; padding: 40px; border-radius: 20px; max-width: 600px; text-align: center; color: #333;
+        }
+        .guide-content h2 { font-family: 'Cinzel', serif; margin-bottom: 20px; color: #2c482b; }
+        .guide-item { margin-bottom: 15px; text-align: left; font-size: 1.1rem; }
+
+        @media print {
+            .controles, .progress-bar, .modal, .guide-overlay,
+            .diploma-area, .confetti { display: none !important; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+
+<div id="guideOverlay" class="guide-overlay">
+    <div class="guide-content">
+        <h2>🎓 BIENVENIDO A LA ORLA INTERACTIVA</h2>
+        <div class="guide-item">▶️ <b>Modo Recorrido:</b> Presentación guiada automática.</div>
+        <div class="guide-item">🔍 <b>Buscador:</b> Encuentra a cualquier protagonista al instante.</div>
+        <div class="guide-item">🖱️ <b>Interactividad:</b> Haz clic en alguien para ver su ficha y diploma.</div>
+        <div class="guide-item">⌨️ <b>Teclado:</b> Usa las flechas para navegar y ESC para salir.</div>
+        <button class="btn btn-celebrar" style="margin: 20px auto 0;" onclick="cerrarGuia()">¡ENTENDIDO!</button>
+    </div>
+</div>
+
+<div class="controles">
+    <a href="menu.html" class="btn" style="background: #333; text-decoration: none;">🏠 MENÚ</a>
+    <button class="btn btn-theme" onclick="toggleTheme()">🌓 TEMA</button>
+    <button class="btn btn-celebrar" onclick="celebrar()">🎉 ¡CELEBRAR!</button>
+    <button class="btn btn-recorrido" id="btnRecorrido" onclick="toggleRecorrido()">▶️ RECORRIDO</button>
+    <button class="btn btn-imprimir" onclick="imprimirPDF()">🖨️ IMPRIMIR PDF</button>
+
+    <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Buscar protagonista..." oninput="buscarPersona()">
+        <div class="no-results" id="noResults">Sin resultados</div>
+    </div>
+</div>
+
+<div class="orla" id="orlaPrincipal">
+    <img class="fondo" src="layout.png" alt="Fondo orla">
+    <div class="contenido">
+        <div class="espacio-titulo"></div>
+        <div class="profesores" id="profesoresContainer"></div>
+        <div class="ciclo">ASISTENCIA A LA DIRECCIÓN</div>
+        <div class="alumnos" id="alumnosContainer"></div>
+        <div class="promocion">PROMOCIÓN 2025-2027</div>
+    </div>
+</div>
+
+<div id="modalDetalle" class="modal" onclick="cerrarModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <img id="modalFoto" src="" class="modal-foto">
+        <h2 id="modalNombre" class="modal-nombre"></h2>
+        <p id="modalCargo" class="modal-bio"></p>
+        <div id="modalExtra" class="superpower"></div>
+        <br>
+        <button class="btn btn-diploma" id="btnGenerarDiploma">📜 GENERAR DIPLOMA</button>
+        <button class="btn-close" onclick="cerrarModal()">CERRAR</button>
+    </div>
+</div>
+
+<div id="diplomaArea" class="diploma-area" onclick="this.style.display='none'">
+    <div class="diploma-box">
+        <div class="diploma-title">MENCIÓN DE HONOR</div>
+        <div class="diploma-text">Se otorga el presente reconocimiento a:</div>
+        <div id="diplomaNombre" class="diploma-name"></div>
+        <div id="diplomaHabilidad" class="diploma-text" style="font-style: italic; color: #8b6239;"></div>
+        <div class="diploma-text" style="font-size: 1.2rem;">Por su brillante paso por la promoción 2025-2027<br><b>IES SERRA PERENXISA</b></div>
+        <button class="btn btn-imprimir btn-print-diploma" onclick="event.stopPropagation(); window.print()">🖨️ IMPRIMIR AHORA</button>
+    </div>
+</div>
+
+<script>
+    const rutaPhotos = "photos/";
+    const TIEMPO_POR_PERSONA = 3500;
+
+    const habilidades = [
+        "Gran Maestro del Reinicio Infinito", "Domador Senior de Bugs Nocturnos", "Cifrador Legendario de WiFi Ajeno",
+        "Arquitecto de Nubes con Algodón", "Instalador de Fibra Óptica Mental", "Gurú de la Reparación con un Clip",
+        "Traductor Humano de Binario a Castellano", "Héroe del Soporte Técnico de la Abuela"
+    ];
+
+    const profesoresRaw = [
+        { nombre: 'Marcos Rivas Rodriguez',  cargo: 'Director' },
+        { nombre: 'Nuria Perez Navarro',      cargo: 'Jefa de Estudios' },
+        { nombre: 'Oscar Vazquez Sanchez',    cargo: 'Profesor' },
+        { nombre: 'Patricia Gil Delgado',     cargo: 'Profesora' },
+        { nombre: 'Rosa Gomez Ramos',         cargo: 'Tutora' },
+    ];
+
+    const alumnosRaw = [
+        { nombre: 'Yara',     apellidos: 'Vara Moreno' },
+        { nombre: 'Zoe',      apellidos: 'Sanchez Soria' },
+        { nombre: 'Andres',   apellidos: 'Ruiz Fernandez' },
+        { nombre: 'Blanca',   apellidos: 'Navarro Vila' },
+        { nombre: 'Cesar',    apellidos: 'Mendoza Gomez' },
+        { nombre: 'Diana',    apellidos: 'Rodriguez Gil' },
+        { nombre: 'Emilio',   apellidos: 'Alvarez Perez' },
+        { nombre: 'Fabiola',  apellidos: 'Torres Torres' },
+        { nombre: 'German',   apellidos: 'Rivas Rodriguez' },
+        { nombre: 'Hilda',    apellidos: 'Perez Navarro' },
+        { nombre: 'Iker',     apellidos: 'Vazquez Sanchez' },
+        { nombre: 'Julia',    apellidos: 'Gil Delgado' },
+    ];
+
+    let recorridoActivo = false, indexRecorrido = 0, timerRecorrido = null, progressInterval = null;
+
+    function cerrarGuia() { document.getElementById('guideOverlay').style.display = 'none'; }
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+
+    function mostrarDetalle(persona, tipo) {
+        const modal = document.getElementById('modalDetalle');
+        const nombreCompleto = persona.nombre + (persona.apellidos ? " " + persona.apellidos : "");
+        const habilidad = habilidades[Math.floor(Math.random() * habilidades.length)];
+
+        document.getElementById('modalNombre').innerText = nombreCompleto;
+        document.getElementById('modalCargo').innerText = persona.cargo || "Graduado en Asistencia a la Dirección";
+        document.getElementById('modalFoto').src = `${tipo === 'profesor' ? rutaProfesores : rutaAlumnos}${normalizarNombre(nombreCompleto)}${extensionImagen}`;
+        document.getElementById('modalExtra').innerText = "✨ Superpoder: " + habilidad;
+
+        document.getElementById('btnGenerarDiploma').onclick = () => {
+            document.getElementById('diplomaNombre').innerText = nombreCompleto;
+            document.getElementById('diplomaHabilidad').innerText = "Reconocido como: " + habilidad;
+            document.getElementById('diplomaArea').style.display = 'flex';
+        };
+
+        modal.style.display = "flex";
+    }
+
+    function cerrarModal() { document.getElementById('modalDetalle').style.display = "none"; }
+
+    function toggleRecorrido() {
+        const btn = document.getElementById('btnRecorrido');
+        if (recorridoActivo) { detenerRecorrido(); btn.innerHTML = "▶️ RECORRIDO"; btn.style.background = "#1a365d"; }
+        else { recorridoActivo = true; indexRecorrido = 0; btn.innerHTML = "⏹️ DETENER"; btn.style.background = "#d32f2f"; iniciarCiclo(); }
+    }
+
+    function iniciarCiclo() {
+        const cards = document.querySelectorAll('.profesor, .alumno');
+        if (indexRecorrido >= cards.length) { celebrar(); detenerRecorrido(); document.getElementById('btnRecorrido').innerHTML = "▶️ RECORRIDO"; document.getElementById('btnRecorrido').style.background = "#1a365d"; return; }
+        enfocarIndice(indexRecorrido);
+        timerRecorrido = setTimeout(() => { indexRecorrido++; iniciarCiclo(); }, TIEMPO_POR_PERSONA);
+    }
+
+    function enfocarIndice(idx) {
+        const cards = document.querySelectorAll('.profesor, .alumno');
+        cards.forEach(c => c.classList.remove('focused'));
+        const current = cards[idx];
+        if (current) {
+            current.classList.add('focused'); current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            let start = Date.now(); const bar = document.getElementById('progressBar'); clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                let elapsed = Date.now() - start; let percent = (elapsed / TIEMPO_POR_PERSONA) * 100;
+                bar.style.width = percent + '%'; if (percent >= 100) clearInterval(progressInterval);
+            }, 50);
+        }
+    }
+
+    function detenerRecorrido() {
+        recorridoActivo = false; clearTimeout(timerRecorrido); clearInterval(progressInterval);
+        document.querySelectorAll('.profesor, .alumno').forEach(c => { c.classList.remove('focused'); c.style.opacity = ""; c.style.filter = ""; });
+        document.getElementById('progressBar').style.width = '0%';
+    }
+
+    function buscarPersona() {
+        const query = document.getElementById('searchInput').value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const cards = document.querySelectorAll('.profesor, .alumno');
+        let encontrado = false;
+        if (query.length < 2) { cards.forEach(c => { c.style.opacity = ""; c.style.filter = ""; c.classList.remove('focused'); }); document.getElementById('noResults').style.display = "none"; return; }
+        cards.forEach(c => {
+            const nombre = c.innerText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (nombre.includes(query)) { c.style.opacity = "1"; c.style.filter = "none"; c.classList.add('focused'); if (!encontrado) c.scrollIntoView({ behavior: 'smooth', block: 'center' }); encontrado = true; }
+            else { c.style.opacity = "0.1"; c.style.filter = "grayscale(1) blur(2px)"; c.classList.remove('focused'); }
+        });
+        document.getElementById('noResults').style.display = encontrado ? "none" : "block";
+    }
+
+    window.addEventListener('keydown', (e) => {
+        const cards = document.querySelectorAll('.profesor, .alumno');
+        if (e.key === "ArrowRight") { if (!recorridoActivo) recorridoActivo = true; else indexRecorrido = (indexRecorrido + 1) % cards.length; clearTimeout(timerRecorrido); enfocarIndice(indexRecorrido); }
+        if (e.key === "ArrowLeft") { if (!recorridoActivo) recorridoActivo = true; else indexRecorrido = (indexRecorrido - 1 + cards.length) % cards.length; clearTimeout(timerRecorrido); enfocarIndice(indexRecorrido); }
+        if (e.key === "Escape") { detenerRecorrido(); document.getElementById('searchInput').value = ""; buscarPersona(); cerrarModal(); document.getElementById('diplomaArea').style.display='none'; }
+    });
+
+    function celebrar() {
+        const colores = ['#2c482b', '#8b6239', '#e5cfaa', '#fcf8ef', '#d4af37'];
+        for(let i=0; i<100; i++) {
+            const c = document.createElement('div'); c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw'; c.style.top = '-10px';
+            c.style.backgroundColor = colores[Math.floor(Math.random() * colores.length)];
+            c.style.width = Math.random() * 10 + 5 + 'px'; c.style.height = c.style.width;
+            document.body.appendChild(c);
+            const anim = c.animate([{ transform: `translate(0, 0) rotate(0deg)`, opacity: 1 }, { transform: `translate(${(Math.random()-0.5) * 200}px, 100vh) rotate(${Math.random() * 720}deg)`, opacity: 0 }], { duration: Math.random() * 2000 + 1000, easing: 'cubic-bezier(0, .9, .57, 1)' });
+            anim.onfinish = () => c.remove();
+        }
+    }
+
+    function imprimirPDF() {
+        window.print();
+    }
+
+    function normalizarNombre(nombre) { return nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.,'´`"]/g, "").replace(/ª/g, "a").replace(/[ ]+/g, "_").replace(/[^a-z0-9_]/gi, "").toLowerCase(); }
+    function obtenerInicial(nombre) { let partes = nombre.replace(/Mª\s*/i, '').trim().split(' '); return partes[0].charAt(0).toUpperCase(); }
+
+    function crearFoto(index, tipo) {
+        const prefix = tipo === 'profesor' ? 'p' : 'a';
+        const src = `${rutaPhotos}${prefix}${index}.jpg`;
+        const fakeSrc = `https://i.pravatar.cc/150?u=${prefix}${index}`;
+        const contenedor = document.createElement('div');
+        const img = new Image();
+        img.onload = () => { contenedor.innerHTML = ''; const foto = document.createElement('img'); foto.src = src; foto.className = tipo === 'profesor' ? 'profesor-foto' : 'alumno-foto'; contenedor.appendChild(foto); };
+        img.onerror = () => {
+            const fake = new Image();
+            fake.onload = () => { contenedor.innerHTML = ''; const foto = document.createElement('img'); foto.src = fakeSrc; foto.className = tipo === 'profesor' ? 'profesor-foto' : 'alumno-foto'; contenedor.appendChild(foto); };
+            fake.onerror = () => { contenedor.innerHTML = ''; const div = document.createElement('div'); div.className = tipo === 'profesor' ? 'placeholder-inicial' : 'alumno-placeholder'; div.textContent = prefix + index; contenedor.appendChild(div); };
+            fake.src = fakeSrc;
+        };
+        img.src = src; return contenedor;
+    }
+
+    function renderProfesores() {
+        const div = document.getElementById('profesoresContainer');
+        profesoresRaw.forEach((prof, i) => {
+            const card = document.createElement('div'); card.className = 'profesor';
+            card.onclick = () => mostrarDetalle(prof, 'profesor');
+            card.appendChild(crearFoto(i + 1, 'profesor'));
+            const n = document.createElement('div'); n.className = 'profesor-nombre'; n.textContent = prof.nombre;
+            const c = document.createElement('div'); c.className = 'profesor-cargo'; c.textContent = prof.cargo;
+            card.appendChild(n); card.appendChild(c); div.appendChild(card);
+        });
+    }
+
+    function renderAlumnos() {
+        const div = document.getElementById('alumnosContainer');
+        const count = alumnosRaw.length;
+
+        let width = "10cqw", foto = "5.5cqw", gapX = "1.2cqw", gapY = "0.6cqw", fPila = "1.2cqw", fApe = "1cqw";
+        if (count > 25) { width = "7.5cqw"; foto = "4cqw"; gapX = "0.8cqw"; gapY = "0.4cqw"; fPila = "0.9cqw"; fApe = "0.75cqw"; }
+        else if (count > 20) { width = "8.5cqw"; foto = "4.8cqw"; gapX = "1cqw"; gapY = "0.5cqw"; fPila = "1cqw"; fApe = "0.85cqw"; }
+        else if (count < 12) { width = "11cqw"; foto = "6.5cqw"; gapX = "2cqw"; gapY = "1cqw"; fPila = "1.4cqw"; fApe = "1.2cqw"; }
+
+        document.body.style.setProperty('--alumno-width', width);
+        document.body.style.setProperty('--alumno-foto-size', foto);
+        document.body.style.setProperty('--alumno-gap-x', gapX);
+        document.body.style.setProperty('--alumno-gap-y', gapY);
+        document.body.style.setProperty('--alumno-font-pila', fPila);
+        document.body.style.setProperty('--alumno-font-ape', fApe);
+
+        [...alumnosRaw].sort((a, b) => a.apellidos.localeCompare(b.apellidos, 'es')).forEach((alumno, i) => {
+            const card = document.createElement('div'); card.className = 'alumno';
+            card.onclick = () => mostrarDetalle(alumno, 'alumno');
+            card.appendChild(crearFoto(i + 1, 'alumno'));
+            const n = document.createElement('div'); n.className = 'alumno-nombre';
+            n.innerHTML = `<span class="alumno-pila">${alumno.nombre}</span><span class="alumno-apellidos">${alumno.apellidos}</span>`;
+            card.appendChild(n); div.appendChild(card);
+        });
+    }
+
+    window.addEventListener('load', () => { renderProfesores(); renderAlumnos(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Orlas - IES Serra Perenxisa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a1a;
+            color: #e9dfc7;
+            font-family: 'Cormorant Garamond', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+            text-align: center;
+            color: #c7b28b;
+        }
+        p.subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 50px;
+            opacity: 0.8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        .card {
+            background: #2a2a2a;
+            border: 1px solid #3d3d3d;
+            border-radius: 15px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            background: #333;
+            border-color: #c7b28b;
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+        .card i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #c7b28b;
+        }
+        .card h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .card span {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 4px;
+            background: #c7b28b;
+            transform: scaleX(0);
+            transition: transform 0.4s;
+        }
+        .card:hover::after { transform: scaleX(1); }
+
+        .footer {
+            margin-top: 60px;
+            font-size: 0.8rem;
+            opacity: 0.4;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ORLAS ACADÉMICAS</h1>
+    <p class="subtitle">IES SERRA PERENXISA - PANEL DE MUESTRAS</p>
+
+    <div class="grid">
+        <a href="smr.html" class="card">
+            <h2>INFORMÁTICA (SMR)</h2>
+            <span>Versión Principal</span>
+        </a>
+        <a href="administrativo.html" class="card">
+            <h2>G. ADMINISTRATIVA</h2>
+            <span>25 Alumnos / 5 Profesores</span>
+        </a>
+        <a href="comercio.html" class="card">
+            <h2>COMERCIO</h2>
+            <span>20 Alumnos / 4 Profesores</span>
+        </a>
+        <a href="bachillerato.html" class="card">
+            <h2>BACHILLERATO</h2>
+            <span>30 Alumnos / 10 Profesores</span>
+        </a>
+        <a href="eso.html" class="card">
+            <h2>4º ESO</h2>
+            <span>28 Alumnos / 12 Profesores</span>
+        </a>
+        <a href="fpb.html" class="card">
+            <h2>FP BÁSICA</h2>
+            <span>15 Alumnos / 3 Profesores</span>
+        </a>
+    </div>
+
+    <div class="footer">GENERADO POR LA APLICACIÓN DE GESTIÓN DE ORLAS</div>
+
+    <script>
+        const tips = [
+            '¡Cada orla es un mundo! Prueba el Modo Recorrido.',
+            'Usa las flechas del teclado en las orlas para navegar.',
+            '¿Sabías que puedes imprimir directamente en A4?',
+            'El confeti es biodegradable (digitalmente hablando).',
+            'SMR 2025-2027: La mejor promoción hasta la fecha.'
+        ];
+        
+        window.addEventListener('load', () => {
+            const footer = document.querySelector('.footer');
+            setInterval(() => {
+                footer.style.opacity = 0;
+                setTimeout(() => {
+                    footer.innerText = tips[Math.floor(Math.random() * tips.length)];
+                    footer.style.opacity = 0.4;
+                }, 1000);
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
+

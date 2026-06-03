@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Orlas Interactivas - IES Serra Perenxisa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a1a;
+            color: #e9dfc7;
+            font-family: 'Cormorant Garamond', serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container { max-width: 1200px; width: 100%; padding: 40px 20px; }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 50px 0 40px;
+            border-bottom: 1px solid #333;
+        }
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            color: #c7b28b;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .badge {
+            display: inline-block;
+            background: #2c482b;
+            color: #e9dfc7;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+
+        section { margin-bottom: 60px; }
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: #c7b28b;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2c482b;
+        }
+        h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: #c7b28b;
+            margin-bottom: 10px;
+        }
+        h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: #c7b28b;
+            margin-bottom: 6px;
+        }
+        p, li {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        ul, ol { padding-left: 25px; }
+        li { margin-bottom: 8px; }
+        code {
+            background: #2a2a2a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #c7b28b;
+        }
+        pre {
+            background: #111;
+            padding: 16px 20px;
+            border-radius: 10px;
+            border: 1px solid #2a2a2a;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #d4c8b8;
+        }
+
+        /* Cards grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .card {
+            background: #2a2a2a;
+            border: 1px solid #3d3d3d;
+            border-radius: 15px;
+            padding: 30px 25px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            background: #333;
+            border-color: #c7b28b;
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            color: #c7b28b;
+        }
+        .card span {
+            font-size: 0.85rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 4px;
+            background: #c7b28b;
+            transform: scaleX(0);
+            transition: transform 0.4s;
+        }
+        .card:hover::after { transform: scaleX(1); }
+
+        /* Feature grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .feature {
+            background: #222;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 3px solid #2c482b;
+        }
+        .feature h3 { font-size: 1.1rem; margin-bottom: 8px; }
+        .feature p { font-size: 0.95rem; margin-bottom: 0; opacity: 0.8; }
+
+        /* Features table alternative */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .detail-item {
+            background: #222;
+            padding: 18px 22px;
+            border-radius: 10px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .detail-item .di { font-size: 1.8rem; flex-shrink: 0; }
+        .detail-item .dt { font-size: 1rem; opacity: 0.85; line-height: 1.5; }
+        .detail-item .dt strong { color: #c7b28b; }
+
+        /* Steps */
+        .steps { counter-reset: step; }
+        .step {
+            counter-increment: step;
+            padding: 20px 25px;
+            margin-bottom: 15px;
+            background: #222;
+            border-radius: 10px;
+            position: relative;
+            padding-left: 70px;
+        }
+        .step::before {
+            content: counter(step);
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 35px;
+            height: 35px;
+            background: #2c482b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #e9dfc7;
+        }
+        .step h3 { margin-bottom: 5px; }
+        .step p { margin-bottom: 0; font-size: 1rem; }
+
+        /* Highlight box */
+        .highlight {
+            background: #1a2a1a;
+            border: 2px solid #2c482b;
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .highlight h2 { border: none; font-size: 2.2rem; margin-bottom: 5px; }
+        .highlight p { font-size: 1.15rem; opacity: 0.8; }
+        .highlight .big-link {
+            display: inline-block;
+            background: #2c482b;
+            color: #e9dfc7;
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            padding: 16px 40px;
+            border-radius: 12px;
+            text-decoration: none;
+            letter-spacing: 2px;
+            transition: background 0.3s;
+            margin: 15px 0;
+        }
+        .highlight .big-link:hover { background: #3a5a3b; }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+        th, td {
+            padding: 10px 16px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        th {
+            background: #222;
+            font-family: 'Cinzel', serif;
+            color: #c7b28b;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        td { opacity: 0.85; }
+
+        .disclaimer {
+            background: #2a2015;
+            border: 1px solid #8b6239;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .disclaimer h3 { color: #8b6239; margin-bottom: 15px; }
+        .disclaimer p { font-size: 1rem; margin-bottom: 10px; opacity: 0.85; }
+
+        footer {
+            border-top: 1px solid #333;
+            padding: 30px 0;
+            text-align: center;
+            opacity: 0.5;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .gap-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+        .pill {
+            background: #2a2a2a;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid #3d3d3d;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .container { padding: 20px 15px; }
+            .grid { grid-template-columns: 1fr; }
+            .highlight { padding: 25px 15px; }
+            .highlight .big-link { font-size: 1rem; padding: 12px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GENERADOR DE ORLAS INTERACTIVAS</h1>
+            <p class="subtitle">IES SERRA PERENXISA · HERRAMIENTA AUTOMÁTICA</p>
+            <span class="badge">NOMBRES Y FOTOGRAFÍAS FICTICIOS</span>
+        </header>
+
+        <!-- ===== INTRODUCCIÓN ===== -->
+        <section>
+            <h2>📖 ¿Qué es este proyecto?</h2>
+            <p>Este proyecto es un <b>generador automático de orlas académicas interactivas</b> para centros educativos. A partir de una plantilla central y un conjunto de datos (profesorado, alumnado, fotografías), genera páginas HTML autónomas que pueden visualizarse en cualquier navegador o imprimirse directamente.</p>
+            <p>Cada orla incluye profesorado y alumnado con fotografía, nombre, cargo y un diploma personalizado con superpoderes aleatorios. Todo ello con un diseño clásico de orla escolar, <b>sin necesidad de servidor, base de datos ni conexión a internet</b> (excepto para las tipografías).</p>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="di">🧑‍🏫</div>
+                    <div class="dt"><strong>Profesorado y alumnado</strong><br>Fotos, nombres y cargos de todos los miembros de la comunidad educativa.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">🖱️</div>
+                    <div class="dt"><strong>Fichas interactivas</strong><br>Clic en cualquier persona para ver su información ampliada y generar un diploma.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">📜</div>
+                    <div class="dt"><strong>Diplomas personalizados</strong><br>Cada persona recibe un diploma único con un superpoder generado aleatoriamente.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">▶️</div>
+                    <div class="dt"><strong>Modo recorrido</strong><br>Pase de diapositivas automático mostrando cada persona una a una.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">🔍</div>
+                    <div class="dt"><strong>Buscador instantáneo</strong><br>Encuentra a cualquier persona al instante filtrando por nombre.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">🖨️</div>
+                    <div class="dt"><strong>Impresión PDF optimizada</strong><br>Imprime la orla en horizontal con solo el contenido visible, sin elementos de interfaz.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== EJEMPLOS EN VIVO ===== -->
+        <section class="highlight">
+            <h2>🌐 Ver ejemplos en vivo</h2>
+            <p>Todas las orlas funcionando en GitHub Pages &mdash; haz clic para probarlas</p>
+            <a href="https://sergarb1.github.io/GeneradorOrlas/" target="_blank" class="big-link">🔗 sergarb1.github.io/GeneradorOrlas</a>
+            <p style="font-size:0.95rem; opacity:0.6;">Haz clic en cualquier orla del sitio para interactuar con ella: busca personas, activa el modo recorrido, genera diplomas y mucho más.</p>
+        </section>
+
+        <!-- ===== EJEMPLOS DE ORLAS ===== -->
+        <section>
+            <h2>🎓 Ejemplos de Orlas</h2>
+            <p>Haz clic en cualquiera de las siguientes orlas para ver el resultado final. Cada una representa una especialidad diferente con su propio número de alumnos y diseño.</p>
+            <div class="grid">
+                <a href="orlas/smr.html" class="card">
+                    <div class="icon">💻</div>
+                    <h3>SMR</h3>
+                    <span>Sistemas Microinformáticos y Redes · 17 alumnos</span>
+                </a>
+                <a href="orlas/bachillerato.html" class="card">
+                    <div class="icon">📐</div>
+                    <h3>Bachillerato</h3>
+                    <span>Ciencias y Tecnología · 30 alumnos</span>
+                </a>
+                <a href="orlas/eso.html" class="card">
+                    <div class="icon">📚</div>
+                    <h3>4º ESO</h3>
+                    <span>Educación Secundaria · 28 alumnos</span>
+                </a>
+                <a href="orlas/informatica.html" class="card">
+                    <div class="icon">📱</div>
+                    <h3>DAM</h3>
+                    <span>Desarrollo de Aplicaciones Multiplataforma · 25 alumnos</span>
+                </a>
+                <a href="orlas/administrativo.html" class="card">
+                    <div class="icon">📋</div>
+                    <h3>Gestión Administrativa</h3>
+                    <span>25 alumnos</span>
+                </a>
+                <a href="orlas/comercio.html" class="card">
+                    <div class="icon">🛒</div>
+                    <h3>Comercio</h3>
+                    <span>Actividades Comerciales · 25 alumnos</span>
+                </a>
+                <a href="orlas/fpb.html" class="card">
+                    <div class="icon">🔧</div>
+                    <h3>FP Básica</h3>
+                    <span>Informática y Comunicaciones · 21 alumnos</span>
+                </a>
+                <a href="orlas/asistenciadireccion.html" class="card">
+                    <div class="icon">📞</div>
+                    <h3>Asistencia a la Dirección</h3>
+                    <span>12 alumnos</span>
+                </a>
+            </div>
+            <p style="text-align:center; margin-top:20px;"><a href="orlas/menu.html" style="color:#c7b28b;">→ Ver panel de navegación completo ←</a></p>
+        </section>
+
+        <!-- ===== CARACTERÍSTICAS DETALLADAS ===== -->
+        <section>
+            <h2>⚙️ Características detalladas</h2>
+
+            <h3>🖱️ Interactividad total</h3>
+            <p>Cada persona en la orla es un elemento interactivo. Al hacer clic se abre un modal con su foto ampliada, nombre completo y cargo (si es profesor). Además, se genera un <b>superpoder aleatorio</b> para esa persona, ideal para hacer la entrega de orlas más amena y divertida.</p>
+
+            <h3>▶️ Modo Recorrido automático</h3>
+            <p>Activa el modo recorrido y la orla irá mostrando cada persona una a una automáticamente. Incluye:</p>
+            <ul>
+                <li><b>Barra de progreso</b> visual en la parte inferior</li>
+                <li><b>Intervalo</b> de tiempo configurable entre persona y persona</li>
+                <li><b>Pausa / reanudación</b> en cualquier momento</li>
+                <li><b>Confeti</b> al completar el recorrido como celebración</li>
+            </ul>
+
+            <h3>🔍 Buscador instantáneo</h3>
+            <p>Escribe en el campo de búsqueda (atajo: tecla <code>F</code>) y filtra al instante tanto profesorado como alumnado. Ideal para orlas con muchos estudiantes donde encontrar a una persona rápidamente.</p>
+
+            <h3>📜 Diploma personalizado</h3>
+            <p>Cada persona puede recibir un diploma único con:</p>
+            <ul>
+                <li>Su nombre completo</li>
+                <li>Un <b>superpoder</b> generado aleatoriamente de una lista de más de 30</li>
+                <li>Diseño elegante con marco decorativo y tipografía especial</li>
+                <li>Listo para imprimir directamente desde el modal</li>
+            </ul>
+
+            <h3>🌓 Modo oscuro / claro</h3>
+            <p>Alterna entre el tema oscuro (por defecto, ideal para proyecciones) y el tema claro (ideal para impresión). La preferencia se guarda en <code>localStorage</code> y persiste aunque recargues la página.</p>
+
+            <h3>🖨️ Impresión optimizada</h3>
+            <p>Pulsa el botón de imprimir y el navegador generará un <b>PDF en horizontal</b> con solo la orla visible. Mediante <code>@media print</code> se ocultan automáticamente todos los elementos de interfaz: botones, modales, buscador, barra de progreso, diploma y confeti.</p>
+
+            <h3>⌨️ Atajos de teclado</h3>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>Tecla</th><th>Acción</th></tr>
+                    <tr><td><code>→</code> / <code>↓</code></td><td>Siguiente persona en el recorrido</td></tr>
+                    <tr><td><code>←</code> / <code>↑</code></td><td>Persona anterior</td></tr>
+                    <tr><td><code>ESC</code></td><td>Cerrar modal o detener recorrido</td></tr>
+                    <tr><td><code>F</code></td><td>Abrir / cerrar el buscador</td></tr>
+                </table>
+            </div>
+
+            <h3>📱 Diseño responsive</h3>
+            <p>Las orlas se adaptan automáticamente a cualquier tamaño de pantalla: móviles, tablets y escritorio. Las fichas, fotos, textos y márgenes se reajustan mediante unidades <code>cqw</code> (container query width) para verse proporcionadas en cualquier dispositivo.</p>
+
+            <h3>📐 Distribución inteligente de alumnos</h3>
+            <p>El sistema distribuye los alumnos en filas usando <b>flex-wrap</b> y ajusta automáticamente el tamaño según la cantidad:</p>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>Alumnos</th><th>Ancho por alumno</th><th>Foto</th><th>Gap vertical</th></tr>
+                    <tr><td>Menos de 12</td><td>11 cqw</td><td>6.5 cqw</td><td>1 cqw</td></tr>
+                    <tr><td>12 a 20</td><td>10 cqw</td><td>5.5 cqw</td><td>0.6 cqw</td></tr>
+                    <tr><td>21 a 25</td><td>8.5 cqw</td><td>4.8 cqw</td><td>0.5 cqw</td></tr>
+                    <tr><td>Más de 25</td><td>7.5 cqw</td><td>4 cqw</td><td>0.4 cqw</td></tr>
+                </table>
+            </div>
+            <p>El sistema evita que la última fila se quede con un único alumno (efecto huérfano), ajustando márgenes para que la composición sea siempre simétrica y equilibrada.</p>
+        </section>
+
+        <!-- ===== NORMALIZADOR DE FOTOS ===== -->
+        <section>
+            <h2>🔥 Normalizador de Fotos</h2>
+            <p>El proyecto incluye <b><code>normalizador-fotos.html</code></b>, una herramienta visual que prepara automáticamente las fotografías para las orlas: las recorta en cuadrado, centra el rostro y las unifica al mismo tamaño.</p>
+
+            <h3>🤔 ¿Por qué es necesario?</h3>
+            <p>En una orla todas las fotos deben verse uniformes: mismo tamaño, misma composición, rostro centrado. Con fotos de diferentes fuentes (móviles, cámaras, redes sociales) es difícil lograr consistencia manualmente. Esta herramienta lo hace automático en lote.</p>
+
+            <h3>🧠 Cómo funciona internamente</h3>
+            <ol>
+                <li><b>Carga masiva</b> — Arrastra todas las fotos que quieras (JPG, PNG, WebP) o selecciónalas con el selector de archivos.</li>
+                <li><b>Detección facial</b> — Usa la API nativa <code>FaceDetector</code> de Chromium (Chrome, Edge, Brave, Opera) para localizar el rostro. No necesita librerías externas ni conexión a internet.</li>
+                <li><b>Recorte inteligente</b> — Calcula el encuadre óptimo alrededor del rostro con un margen configurable. Si el rostro está cerca del borde, desplaza el encuadre para no recortar fuera de la imagen.</li>
+                <li><b>Redimensionado</b> — Escala el recorte al tamaño de salida (600×600 px por defecto) con la máxima calidad de imagen.</li>
+                <li><b>Previsualización</b> — Muestra cada foto Original vs Normalizada lado a lado en tarjetas.</li>
+                <li><b>Descarga</b> — Individual o todas juntas (usando File System Access API si está disponible, o descarga secuencial).</li>
+            </ol>
+
+            <h3>📐 Parámetros configurables</h3>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>Parámetro</th><th>Valor por defecto</th><th>Rango</th><th>Descripción</th></tr>
+                    <tr><td>Tamaño de salida</td><td>600 × 600 px</td><td>100 – 2000 px</td><td>Resolución de la foto normalizada</td></tr>
+                    <tr><td>Margen facial</td><td>30%</td><td>0 – 100%</td><td>Espacio adicional alrededor del rostro detectado</td></tr>
+                </table>
+            </div>
+
+            <h3>🦊 Compatibilidad</h3>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>Navegador</th><th>Detección facial</th><th>Funcionamiento</th></tr>
+                    <tr><td>Chrome / Edge</td><td>✅ API nativa</td><td>Completo: detecta rostro y centra</td></tr>
+                    <tr><td>Brave / Opera</td><td>✅ API nativa</td><td>Completo</td></tr>
+                    <tr><td>Firefox</td><td>❌ No soportado</td><td>Fallback: centrado automático (toma el centro de la imagen)</td></tr>
+                    <tr><td>Safari</td><td>❌ No soportado</td><td>Fallback: centrado automático</td></tr>
+                </table>
+            </div>
+            <p>En navegadores sin <code>FaceDetector</code> la herramienta sigue funcionando perfectamente: simplemente centra la imagen tomando el centro geométrico, que funciona bien cuando la cara está aproximadamente centrada en la foto original.</p>
+        </section>
+
+        <!-- ===== NORMALIZADOR PYTHON ===== -->
+        <section>
+            <h2>🐍 Normalizador con Python + OpenCV</h2>
+            <p><b><code>normalizar-fotos.py</code></b> es una versión por línea de comandos que usa OpenCV para detectar rostros con dos motores:</p>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>Motor</th><th>Precisión</th><th>Velocidad</th><th>Descripción</th></tr>
+                    <tr><td><b>Haar Cascade</b></td><td>⚠️ Básica</td><td>🚀 Rápido</td><td>Integrado en OpenCV, sin descargas adicionales</td></tr>
+                    <tr><td><b>DNN (SSD+ResNet)</b></td><td>✅ Alta</td><td>⚡ Medio</td><td>Se descarga automáticamente (~20 MB) la primera vez</td></tr>
+                </table>
+            </div>
+
+            <h3>Instalación</h3>
+            <pre>pip install -r requirements.txt</pre>
+
+            <h3>Uso directo</h3>
+            <pre>python normalizar-fotos.py
+python normalizar-fotos.py --input ./profesores --size 800 --detector dnn
+python normalizar-fotos.py --input ./alumnos --format png --verbose</pre>
+
+            <h3>Lanzador automático (Windows)</h3>
+            <p><b><code>ejecutar-normalizador.ps1</code></b> hace todo solo: crea un entorno virtual, instala dependencias, descarga el modelo DNN y ejecuta el normalizador con los argumentos que le pases:</p>
+            <pre>.\ejecutar-normalizador.ps1
+.\ejecutar-normalizador.ps1 -Input ./profesores -Detector dnn -Verbose
+.\ejecutar-normalizador.ps1 -DryRun</pre>
+        </section>
+
+        <!-- ===== NORMALIZADOR IMAGEMAGICK ===== -->
+        <section>
+            <h2>🖥️ Normalizador con ImageMagick</h2>
+            <p><b><code>normalizar-fotos.ps1</code></b> usa ImageMagick para centrado geométrico y redimensionado en lote. No tiene detección facial, pero es la opción más rápida si todas las fotos ya están bien encuadradas.</p>
+            <pre>.\normalizar-fotos.ps1
+.\normalizar-fotos.ps1 -InputDir ./profesores -Size 800 -Verbose
+.\normalizar-fotos.ps1 -InputDir ./fotos -DryRun</pre>
+            <p>Requiere <a href="https://imagemagick.org/script/download.php" style="color:#c7b28b;">ImageMagick</a> instalado y disponible en el PATH.</p>
+
+            <div class="table-wrap" style="margin-top:16px;">
+                <table>
+                    <tr><th>Herramienta</th><th>Detección facial</th><th>Requsito</th><th>Ideal para</th></tr>
+                    <tr><td>🌐 <code>normalizador-fotos.html</code></td><td>✅ API nativa</td><td>Chrome/Edge</td><td>Uso gráfico, pocas fotos</td></tr>
+                    <tr><td>🐍 <code>normalizar-fotos.py</code></td><td>✅ Haar / DNN</td><td><code>pip install -r requirements.txt</code></td><td>Lotes grandes, máxima precisión</td></tr>
+                    <tr><td>🖥️ <code>normalizar-fotos.ps1</code></td><td>❌ Centrado</td><td>ImageMagick</td><td>Lotes rápidos sin detección facial</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===== GUÍA DE PERSONALIZACIÓN ===== -->
+        <section>
+            <h2>📝 Guía completa: Cómo crear tu propia orla</h2>
+            <p>Sigue estos pasos para personalizar una orla con tus propios datos y fotografías:</p>
+
+            <h3>Paso 1: Elige una plantilla base</h3>
+            <p>Parte de cualquiera de los archivos HTML existentes. El más recomendado es <code>index-ejemplo-principal.html</code> (plantilla principal que contiene el diseño base). Si tu ciclo tiene un número de alumnos similar a algún ejemplo, usa ese como referencia:</p>
+            <div class="gap-row">
+                <span class="pill">📖 Hasta 12 → Asistencia a la Dirección</span>
+                <span class="pill">💻 15–20 → SMR (17 alumnos)</span>
+                <span class="pill">📱 21–25 → DAM (25 alumnos)</span>
+                <span class="pill">📚 26–30 → 4º ESO / Bachillerato</span>
+            </div>
+
+            <h3>Paso 2: Normaliza las fotografías</h3>
+            <p>Tienes tres opciones para dejar todas las fotos con el mismo tamaño y la cara centrada:</p>
+            <div class="detail-grid" style="margin-bottom:16px;">
+                <div class="detail-item">
+                    <div class="di">🌐</div>
+                    <div class="dt"><strong>HTML (navegador)</strong><br>Abre <code>normalizador-fotos.html</code> en Chrome/Edge, arrastra las fotos y pulsa "Descargar ZIP".</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">🐍</div>
+                    <div class="dt"><strong>Python + OpenCV</strong><br><code>.\ejecutar-normalizador.ps1 -Detector dnn</code> — instala y ejecuta todo.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">🖥️</div>
+                    <div class="dt"><strong>ImageMagick</strong><br><code>.\normalizar-fotos.ps1</code> — centrado geométrico rápido.</div>
+                </div>
+            </div>
+            <p>Coloca las fotos resultantes en las carpetas:</p>
+            <ul>
+                <li><code>profesores/nombre_apellido1_apellido2.jpg</code> — para el profesorado</li>
+                <li><code>alumnos/nombre_apellido1_apellido2.jpg</code> — para el alumnado</li>
+            </ul>
+            <p>Si una foto no existe, el sistema muestra automáticamente un círculo con la inicial de la persona.</p>
+
+            <h3>Paso 3: Edita los datos</h3>
+            <p>Busca en el HTML los arrays <code>profesoresRaw</code> y <code>alumnosRaw</code> y edítalos:</p>
+            <pre>const profesoresRaw = [
+  { nombre: 'María García López', cargo: 'Tutora' },
+  { nombre: 'Juan Pérez Martínez', cargo: 'Profesor de Matemáticas' }
+];
+
+const alumnosRaw = [
+  { nombre: 'Ana',   apellidos: 'Gómez Ruiz' },
+  { nombre: 'Luis',  apellidos: 'Sánchez López' }
+];</pre>
+
+            <h3>Paso 4: Personaliza el diseño</h3>
+            <p>Modifica las variables CSS en el bloque <code>:root</code> para ajustar los colores:</p>
+            <pre>:root {
+  --bg-body: #f3f0e9;       /* Fondo general */
+  --bg-orla: #fefcf5;       /* Fondo de la orla */
+  --accent: #2c482b;        /* Color principal */
+  --accent-alt: #8b6239;    /* Color secundario */
+  --text-main: #2c2c2c;
+  --text-light: #6b5a45;
+}</pre>
+            <p>Reemplaza <code>layout.png</code> por tu propia imagen de fondo (1920×1080 px recomendado).</p>
+
+            <h3>Paso 5: Actualiza el texto</h3>
+            <pre>&lt;div class="ciclo"&gt;CICLO FORMATIVO DE GRADO MEDIO&lt;/div&gt;
+&lt;div class="promocion"&gt;PROMOCIÓN 2024-2026&lt;/div&gt;</pre>
+
+            <h3>Paso 6: Abre en el navegador</h3>
+            <p>No necesitas servidor. Abre el archivo <code>.html</code> directamente con doble clic en Chrome o Edge. Todo funciona 100% desde el sistema de archivos local.</p>
+        </section>
+
+        <!-- ===== SCRIPTS ===== -->
+        <section>
+            <h2>🤖 Scripts de automatización</h2>
+            <p>El proyecto incluye scripts en PowerShell para automatizar la generación de orlas de ejemplo:</p>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="di">🔨</div>
+                    <div class="dt"><strong>update_orlas.ps1</strong><br>Genera todas las orlas desde cero: nombres ficticios, asignación de fotos y HTML completos.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">🔄</div>
+                    <div class="dt"><strong>sync_all.ps1</strong><br>Sincroniza el diseño de todas las orlas desde la plantilla <code>index-ejemplo-principal.html</code>.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">🔍</div>
+                    <div class="dt"><strong>check_missing.ps1</strong><br>Verifica qué fotografías faltan en los directorios.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">📋</div>
+                    <div class="dt"><strong>copy_photos.ps1</strong><br>Distribuye fotos desde el pool <code>photos/</code> a los directorios normalizados.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">🐍</div>
+                    <div class="dt"><strong>ejecutar-normalizador.ps1</strong><br>Lanzador todo-en-uno: crea venv, instala dependencias, descarga modelo DNN y ejecuta <code>normalizar-fotos.py</code>.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">📦</div>
+                    <div class="dt"><strong>requirements.txt</strong><br>Dependencias Python para <code>normalizar-fotos.py</code>. Instalar con <code>pip install -r requirements.txt</code>.</div>
+                </div>
+            </div>
+                <div class="detail-item">
+                    <div class="di">🔄</div>
+                    <div class="dt"><strong>sync_all.ps1</strong><br>Sincroniza el diseño de todas las orlas desde la plantilla <code>index-ejemplo-principal.html</code>.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">🔍</div>
+                    <div class="dt"><strong>check_missing.ps1</strong><br>Verifica qué fotografías faltan en los directorios.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="di">📋</div>
+                    <div class="dt"><strong>copy_photos.ps1</strong><br>Distribuye fotos desde el pool <code>photos/</code> a los directorios normalizados.</div>
+                </div>
+            </div>
+            <p>Los scripts usan un pool de fotografías genéricas (<code>photos/a1.jpg</code> … <code>p6.jpg</code>) y nombres ficticios para producir orlas completas de ejemplo. Son ideales para hacer una demo rápida o probar cambios en el diseño.</p>
+        </section>
+
+        <!-- ===== PUBLICACIÓN ===== -->
+        <section>
+            <h2>🌍 Publicar en GitHub Pages</h2>
+            <p>Para compartir tus orlas en internet:</p>
+            <ol>
+                <li><b>Sube el proyecto a GitHub</b> — crea un repositorio y sube todos los archivos.</li>
+                <li><b>Activa GitHub Pages</b> — ve a Settings → Pages, selecciona la rama <code>main</code> y la carpeta <code>/docs</code>.</li>
+                <li>En unos segundos tu sitio estará disponible en <code>https://tu-usuario.github.io/GeneradorOrlas/</code>.</li>
+            </ol>
+            <p>El contenido de la carpeta <code>docs/</code> se sirve automáticamente como sitio web estático, sin necesidad de configuración adicional.</p>
+        </section>
+
+        <!-- ===== REQUISITOS ===== -->
+        <section>
+            <h2>⚙️ Requisitos del sistema</h2>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>Componente</th><th>Requisito</th></tr>
+                    <tr><td>Navegador</td><td>Chrome, Edge, Brave, Opera (recomendados) · Firefox y Safari compatibles</td></tr>
+                    <tr><td>Servidor web</td><td>No necesario (funciona en <code>file://</code>)</td></tr>
+                    <tr><td>Conexión a internet</td><td>Solo para Google Fonts (opcional, se pueden incluir localmente)</td></tr>
+                    <tr><td>Sistema operativo</td><td>Windows, macOS, Linux</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===== AVISO ===== -->
+        <section class="disclaimer">
+            <h3>⚠️ Aviso importante</h3>
+            <p><b>Todos los nombres, apellidos y datos personales</b> que aparecen en las orlas de ejemplo son <b>completamente ficticios</b>. Han sido generados algorítmicamente combinando nombres y apellidos comunes de forma aleatoria.</p>
+            <p><b>Todas las fotografías</b> son igualmente ficticias: imágenes genéricas de archivo o placeholders. Cualquier parecido con la realidad es mera coincidencia.</p>
+            <p>Este proyecto se proporciona como <b>herramienta de ejemplo y plantilla</b> para que cada centro educativo pueda adaptarlo con sus propios datos oficiales.</p>
+        </section>
+
+        <footer>
+            Generador de Orlas Interactivas · IES Serra Perenxisa · Proyecto de código abierto
+        </footer>
+    </div>
+</body>
+</html>
