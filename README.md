@@ -16,7 +16,7 @@ Generador automático de **orlas académicas interactivas** en HTML/CSS/JS puro.
 
 [![🌐 Abrir GitHub Pages](https://img.shields.io/badge/🌐_ABRIR_GITHUB_PAGES-2c482b?style=for-the-badge&logo=githubpages&logoColor=white)](https://sergarb1.github.io/GeneradorOrlas/)
 [![📁 Ver docs/ local](https://img.shields.io/badge/📁_Ver_docs_📂-8b6239?style=for-the-badge)](docs/index.html)
-[![📸 Normalizador Fotos](https://img.shields.io/badge/📸_Normalizador_Fotos-5a7a4b?style=for-the-badge)](normalizador-fotos.html)
+[![📸 Normalizador Fotos](https://img.shields.io/badge/📸_Normalizador_Fotos-5a7a4b?style=for-the-badge)](https://sergarb1.github.io/GeneradorOrlas/normalizador-fotos.html)
 
 > 👆 **Haz clic en el badge de arriba — todas las orlas funcionando en vivo**
 
